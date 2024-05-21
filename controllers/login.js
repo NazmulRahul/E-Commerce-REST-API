@@ -1,4 +1,5 @@
 const User=require('../models/User') 
+const jwt=require('jsonwebtoken')
 
 const login=async(req,res)=>{
     const{userName,password}=req.body
@@ -11,7 +12,11 @@ const login=async(req,res)=>{
         if(user.password!==password){
             return res.status(401).send('password did not match')
         }
-        return res.status(201).send('login successful')
+        const accessToken = jwt.sign(
+            { userName: userName, isAdmin:user.isAdmin },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: "1d" })
+        return res.status(201).json({accessToken})
 
     }catch(error){
         return res.status(500).json(error)
